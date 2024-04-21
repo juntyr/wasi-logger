@@ -1,0 +1,5 @@
+package crates-io:wasi-logger@0.1.0;
+
+world crate {
+  include wasi:logging/imports;
+}
