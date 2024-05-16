@@ -214,12 +214,33 @@ struct KeyValues<'a>(&'a dyn log::kv::Source);
 
 #[cfg(feature = "kv")]
 impl<'a> core::fmt::Debug for KeyValues<'a> {
-    // adapted from log v0.4.21
-    // released under the MIT or Apache 2.0 License
-    // https://docs.rs/log/0.4.21/src/log/lib.rs.html#730-745
     fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let mut visitor = fmt.debug_map();
+        struct Display<T: core::fmt::Display>(T);
+
+        impl<T: core::fmt::Display> core::fmt::Debug for Display<T> {
+            fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::fmt::Result {
+                self.0.fmt(fmt)
+            }
+        }
+
+        struct KeyValueMapFormatter<'a, 'b>(core::fmt::DebugMap<'a, 'b>);
+
+        impl<'a, 'b, 'kvs> log::kv::VisitSource<'kvs> for KeyValueMapFormatter<'a, 'b> {
+            fn visit_pair(
+                &mut self,
+                key: log::kv::Key<'kvs>,
+                value: log::kv::Value<'kvs>,
+            ) -> Result<(), log::kv::Error> {
+                self.0.entry(&Display(key), &value);
+                Ok(())
+            }
+        }
+
+        // adapted from log v0.4.21
+        // released under the MIT or Apache 2.0 License
+        // https://docs.rs/log/0.4.21/src/log/lib.rs.html#730-745
+        let mut visitor = KeyValueMapFormatter(fmt.debug_map());
         self.0.visit(&mut visitor).map_err(|_| core::fmt::Error)?;
-        visitor.finish()
+        visitor.0.finish()
     }
 }
