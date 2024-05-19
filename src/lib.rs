@@ -114,8 +114,8 @@ impl Logger {
 
 impl Log for Logger {
     #[inline]
-    fn enabled(&self, _metadata: &Metadata) -> bool {
-        true
+    fn enabled(&self, metadata: &Metadata) -> bool {
+        metadata.level() <= log::max_level()
     }
 
     #[inline]
