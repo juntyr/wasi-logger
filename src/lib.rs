@@ -58,8 +58,8 @@
 //!     wasi_logger::Logger::install().expect("failed to install wasi_logger::Logger");
 //!     log::set_max_level(log::LevelFilter::Info);
 //!
-//!     error!("Something went really wrong");
-//!     info!("This is good to know");
+//!     error!("Something went really wrong with {x} / {y}", x=42, y=0);
+//!     info!(target: "my-target", "This is good to know and has a custom target");
 //!     debug!("This message is not recorded as the trace level is currently disabled");
 //! }
 //! ```
